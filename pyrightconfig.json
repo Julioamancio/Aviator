@@ -1,0 +1,14 @@
+{
+  "venvPath": ".",
+  "venv": "AviatorBot/venv",
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "exclude": [
+    "**/build",
+    "**/dist",
+    "**/.venv",
+    "**/__pycache__"
+  ]
+}
