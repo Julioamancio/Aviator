@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Admin — Clientes</h2>
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-striped table-hover mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Usuário</th>
+          <th>Serial</th>
+          <th>Ativação</th>
+          <th>Licença</th>
+          <th>Restante (dias)</th>
+          <th>Criado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.username }}{% if u.is_admin %} <span class="badge bg-secondary">admin</span>{% endif %}</td>
+          <td>{{ u.serial_key or '-' }}</td>
+          <td>{{ u.activation_date or '-' }}</td>
+          <td>{% if u.license_valid() %}<span class="text-success">Válida</span>{% else %}<span class="text-danger">Inválida</span>{% endif %}</td>
+          <td>{{ u.license_days_left() }}</td>
+          <td>{{ u.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  </div>
+{% endblock %}
+

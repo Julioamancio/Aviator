@@ -11,6 +11,8 @@ venv/
 # Logs & runtime
 logs/
 config/config.json
+app.db
+user_uploads/
 
 # OS
 .DS_Store
@@ -23,4 +25,3 @@ Thumbs.db
 # SSH keys
 ssh_aviator
 ssh_aviator.pub
-

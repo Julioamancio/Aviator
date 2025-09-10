@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Script do Robô</h2>
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Definir Caminho do Script</h5>
+        <form method="post" action="{{ url_for('script.save_path') }}">
+          <div class="mb-3">
+            <label class="form-label">Caminho completo (.py)</label>
+            <input class="form-control" name="script_path" value="{{ settings.script_path if settings else '' }}" placeholder="C:\\caminho\\meu_script.py" />
+          </div>
+          <button class="btn btn-primary">Salvar Caminho</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Enviar Arquivo</h5>
+        <form method="post" enctype="multipart/form-data" action="{{ url_for('script.upload') }}">
+          <div class="mb-3">
+            <input class="form-control" type="file" name="file" accept=".py" />
+          </div>
+          <button class="btn btn-secondary">Upload e Usar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

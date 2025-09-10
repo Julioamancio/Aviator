@@ -3,10 +3,14 @@
 <div class="d-flex align-items-center justify-content-between mb-3">
   <h2 class="mb-0">Dashboard</h2>
   <div>
-    {% if status.running %}
-      <form class="d-inline" method="post" action="/stop"><button class="btn btn-warning">Parar</button></form>
+    {% if current_user.license_valid() %}
+      {% if status.running %}
+        <form class="d-inline" method="post" action="/stop"><button class="btn btn-warning">Parar</button></form>
+      {% else %}
+        <form class="d-inline" method="post" action="/start"><button class="btn btn-success">Iniciar</button></form>
+      {% endif %}
     {% else %}
-      <form class="d-inline" method="post" action="/start"><button class="btn btn-success">Iniciar</button></form>
+      <a class="btn btn-outline-danger" href="/license">Ative a licença para iniciar</a>
     {% endif %}
   </div>
   </div>
@@ -21,6 +25,7 @@
           <li><b>Uptime:</b> {{ '%.1f'|format(status.uptime_sec) }} s</li>
           <li><b>Iterações:</b> {{ status.iterations }}</li>
           <li><b>Estratégia:</b> {{ status.config.strategy.name }}</li>
+          <li><b>Licença:</b> {% if current_user.license_valid() %}<span class="text-success">Válida ({{ current_user.license_days_left() }} dia(s))</span>{% else %}<span class="text-danger">Inválida</span>{% endif %}</li>
         </ul>
       </div>
     </div>
@@ -59,4 +64,3 @@
   setInterval(refreshLogs, 2000);
 </script>
 {% endblock %}
-

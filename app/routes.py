@@ -1,37 +1,52 @@
 from __future__ import annotations
 
 from flask import Blueprint, current_app, redirect, render_template, request, url_for, jsonify, flash
+from flask_login import login_required, current_user
+from .models import UserSetting
 
 bp = Blueprint("main", __name__)
 
 
 @bp.get("/")
+@login_required
 def index():
-    status = current_app.bot_service.status()
+    svc = current_app.bot_manager.get_service(current_user.id)  # type: ignore[arg-type]
+    status = svc.status()
     return render_template("index.html", status=status, title=current_app.config_manager.get("app", {}).get("title", "Aviator Bot"))
 
 
 @bp.post("/start")
+@login_required
 def start():
-    current_app.bot_service.start()
+    if not current_user.license_valid():  # type: ignore[attr-defined]
+        flash("Licença inválida ou expirada. Ative em Licença.", "danger")
+        return redirect(url_for("license.view"))
+    svc = current_app.bot_manager.get_service(current_user.id)  # type: ignore[arg-type]
+    svc.start()
     flash("Bot iniciado.", "success")
     return redirect(url_for("main.index"))
 
 
 @bp.post("/stop")
+@login_required
 def stop():
-    current_app.bot_service.stop()
+    svc = current_app.bot_manager.get_service(current_user.id)  # type: ignore[arg-type]
+    svc.stop()
     flash("Bot parado.", "warning")
     return redirect(url_for("main.index"))
 
 
 @bp.get("/config")
+@login_required
 def config_get():
+    # Mostra config combinada: global + por usuário
     cfg = current_app.config_manager.load()
-    return render_template("config.html", cfg=cfg, title="Configuração")
+    s: UserSetting | None = UserSetting.query.filter_by(user_id=current_user.id).first()  # type: ignore[arg-type]
+    return render_template("config.html", cfg=cfg, settings=s, title="Configuração")
 
 
 @bp.post("/config")
+@login_required
 def config_post():
     data = current_app.config_manager.load()
     # Atualiza campos conhecidos
@@ -41,9 +56,21 @@ def config_post():
     data["strategy"]["threshold"] = _f(request.form.get("threshold"), data["strategy"].get("threshold", 1.5))
     data["strategy"]["risk_percent"] = _f(request.form.get("risk_percent"), data["strategy"].get("risk_percent", 2.0))
     data["strategy"]["max_consecutive_losses"] = int(request.form.get("max_consecutive_losses", data["strategy"].get("max_consecutive_losses", 3)))
-    data["bot"]["script_path"] = request.form.get("script_path", data["bot"].get("script_path", "app/user_script.py"))
     data["bot"]["interval_seconds"] = _f(request.form.get("interval_seconds"), data["bot"].get("interval_seconds", 2))
     current_app.config_manager.save(data)
+
+    # Atualiza settings do usuário
+    s = UserSetting.query.filter_by(user_id=current_user.id).first()  # type: ignore[arg-type]
+    if not s:
+        s = UserSetting(user_id=current_user.id)
+        db = __import__('app.extensions').extensions.db  # lazy import to avoid cycle
+        db.session.add(s)
+        db.session.commit()
+    s.strategy_name = data["strategy"]["name"]
+    s.threshold = float(data["strategy"]["threshold"])
+    s.risk_percent = float(data["strategy"]["risk_percent"])
+    s.max_consecutive_losses = int(data["strategy"]["max_consecutive_losses"])
+    __import__('app.extensions').extensions.db.session.commit()
     flash("Configuração salva.", "success")
     return redirect(url_for("main.config_get"))
 
@@ -56,8 +83,10 @@ def _f(val, default):
 
 
 @bp.get("/logs")
+@login_required
 def logs_view():
-    lines = current_app.bot_service.tail_logs(200)
+    svc = current_app.bot_manager.get_service(current_user.id)  # type: ignore[arg-type]
+    lines = svc.tail_logs(200)
     return render_template("logs.html", lines=lines, title="Logs")
 
 
@@ -67,11 +96,26 @@ def health():
 
 
 @bp.get("/api/status")
+@login_required
 def api_status():
-    return jsonify(current_app.bot_service.status())
+    svc = current_app.bot_manager.get_service(current_user.id)  # type: ignore[arg-type]
+    return jsonify(svc.status())
 
 
 @bp.get("/api/logs")
+@login_required
 def api_logs():
-    return jsonify({"logs": current_app.bot_service.tail_logs(200)})
+    svc = current_app.bot_manager.get_service(current_user.id)  # type: ignore[arg-type]
+    return jsonify({"logs": svc.tail_logs(200)})
 
+
+# Admin dashboard
+@bp.get("/admin")
+@login_required
+def admin():
+    if not getattr(current_user, "is_admin", False):
+        flash("Acesso negado.", "danger")
+        return redirect(url_for("main.index"))
+    from .models import User
+    users = User.query.order_by(User.created_at.desc()).all()
+    return render_template("admin.html", users=users, title="Admin")

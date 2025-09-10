@@ -19,11 +19,6 @@
     <label class="form-label">Perdas seguidas (máx)</label>
     <input class="form-control" name="max_consecutive_losses" type="number" value="{{ cfg.strategy.max_consecutive_losses }}" />
   </div>
-  <div class="col-md-6">
-    <label class="form-label">Caminho do Script</label>
-    <input class="form-control" name="script_path" value="{{ cfg.bot.script_path }}" />
-    <div class="form-text">Arquivo com função run_step(config, ctx) -> dict</div>
-  </div>
   <div class="col-md-2">
     <label class="form-label">Intervalo (s)</label>
     <input class="form-control" name="interval_seconds" type="number" step="0.1" value="{{ cfg.bot.interval_seconds }}" />
@@ -31,7 +26,7 @@
 
   <div class="col-12">
     <button class="btn btn-primary">Salvar</button>
+    <a class="btn btn-outline-secondary" href="/script">Gerenciar Script</a>
   </div>
 </form>
 {% endblock %}
-

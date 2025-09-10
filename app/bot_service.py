@@ -132,3 +132,20 @@ class BotService:
             "score": round(thr * 0.66, 3),
         }
 
+
+class BotManager:
+    """Gerencia instâncias de BotService por usuário."""
+
+    def __init__(self, cfg: ConfigManager) -> None:
+        self.cfg = cfg
+        self._services: dict[int, BotService] = {}
+        self._lock = threading.Lock()
+
+    def get_service(self, user_id: int) -> BotService:
+        with self._lock:
+            svc = self._services.get(user_id)
+            if not svc:
+                svc = BotService(self.cfg)
+                self._services[user_id] = svc
+            return svc
+
