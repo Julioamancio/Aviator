@@ -13,6 +13,7 @@ logs/
 config/config.json
 app.db
 user_uploads/
+secrets/
 
 # OS
 .DS_Store
