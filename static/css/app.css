@@ -1,0 +1,11 @@
+.log-box {
+  background: #0c0f13;
+  color: #e8e8e8;
+  border-radius: 6px;
+  padding: 12px;
+  height: 300px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+}
+

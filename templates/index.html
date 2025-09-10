@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h2 class="mb-0">Dashboard</h2>
+  <div>
+    {% if status.running %}
+      <form class="d-inline" method="post" action="/stop"><button class="btn btn-warning">Parar</button></form>
+    {% else %}
+      <form class="d-inline" method="post" action="/start"><button class="btn btn-success">Iniciar</button></form>
+    {% endif %}
+  </div>
+  </div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Status</h5>
+        <ul class="list-unstyled small">
+          <li><b>Rodando:</b> {{ 'Sim' if status.running else 'Não' }}</li>
+          <li><b>Uptime:</b> {{ '%.1f'|format(status.uptime_sec) }} s</li>
+          <li><b>Iterações:</b> {{ status.iterations }}</li>
+          <li><b>Estratégia:</b> {{ status.config.strategy.name }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Último Resultado</h5>
+        <pre class="mb-0 small">{{ status.last_result | tojson(indent=2) }}</pre>
+      </div>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Logs Recentes</h5>
+        <div id="logs" class="log-box"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Atualiza logs periodicamente
+  async function refreshLogs() {
+    try {
+      const res = await fetch('/api/logs');
+      const data = await res.json();
+      const box = document.getElementById('logs');
+      box.textContent = (data.logs || []).join('\n');
+    } catch(e) {
+      console.error(e);
+    }
+  }
+  refreshLogs();
+  setInterval(refreshLogs, 2000);
+</script>
+{% endblock %}
+

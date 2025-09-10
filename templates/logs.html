@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Logs</h2>
+<pre id="logs" class="log-box"></pre>
+<script>
+  async function refreshLogs() {
+    try {
+      const res = await fetch('/api/logs');
+      const data = await res.json();
+      const box = document.getElementById('logs');
+      box.textContent = (data.logs || []).join('\n');
+    } catch(e) {
+      console.error(e);
+    }
+  }
+  refreshLogs();
+  setInterval(refreshLogs, 1500);
+</script>
+{% endblock %}
+

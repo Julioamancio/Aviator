@@ -1,14 +1,2 @@
-customtkinter==5.2.0
-selenium==4.21.0
-webdriver-manager==4.0.1
-requests==2.31.0
-pillow==10.4.0
-numpy==1.26.4
-psutil==5.9.8
-urllib3<3
-matplotlib==3.9.0
-fastapi==0.111.0
-uvicorn==0.30.1
-scikit-learn==1.4.2
-python-jose==3.3.0
-pandas==2.2.2
+flask==3.0.3
+gunicorn==21.2.0
