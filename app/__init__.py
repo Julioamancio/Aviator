@@ -7,6 +7,7 @@ from .config_manager import ConfigManager
 from .bot_service import BotManager
 from .extensions import db, login_manager
 from .models import User, UserSetting
+from .models import ensure_user_settings_columns
 
 
 def create_app() -> Flask:
@@ -48,6 +49,11 @@ def create_app() -> Flask:
     # Cria tabelas e usuário admin default (opcional)
     with app.app_context():
         db.create_all()
+        # ensure new columns exist
+        try:
+            ensure_user_settings_columns(db.engine)
+        except Exception:
+            pass
         # Admin default
         from datetime import datetime
         admin_user = User.query.filter_by(username=os.getenv("ADMIN_USERNAME", "admin")).first()

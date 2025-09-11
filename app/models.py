@@ -7,6 +7,8 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .extensions import db, login_manager
+from flask import current_app
+from .license_util import verify_license
 
 
 class User(db.Model, UserMixin):
@@ -26,15 +28,33 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
     def license_valid(self) -> bool:
-        if not self.activation_date or not self.serial_key:
+        if not self.serial_key:
             return False
-        return date.today() <= (self.activation_date + timedelta(days=30))
+        try:
+            secret = current_app.config.get("SECRET_KEY", "dev-secret")
+            ok, exp_or_msg = verify_license(secret, self.serial_key, self.username)
+            if ok:
+                # also ensure not before activation if present
+                if self.activation_date and date.today() < self.activation_date:
+                    return False
+                return True
+            return False
+        except Exception:
+            return False
 
     def license_days_left(self) -> int:
-        if not self.activation_date or not self.serial_key:
+        if not self.serial_key:
             return 0
-        delta = (self.activation_date + timedelta(days=30)) - date.today()
-        return max(delta.days, 0)
+        try:
+            secret = current_app.config.get("SECRET_KEY", "dev-secret")
+            ok, exp_or_msg = verify_license(secret, self.serial_key, self.username)
+            if ok:
+                exp_date = exp_or_msg  # type: ignore[assignment]
+                delta = exp_date - date.today()
+                return max(delta.days, 0)
+            return 0
+        except Exception:
+            return 0
 
 
 class UserSetting(db.Model):
@@ -48,6 +68,10 @@ class UserSetting(db.Model):
     max_consecutive_losses = db.Column(db.Integer, default=3, nullable=False)
     script_path = db.Column(db.String(512), default="app/user_script.py", nullable=False)
     interval_seconds = db.Column(db.Float, default=2.0, nullable=False)
+    # New: platform credentials and options
+    platform_username = db.Column(db.String(120), nullable=True)
+    platform_password = db.Column(db.String(255), nullable=True)
+    headless = db.Column(db.Boolean, default=True, nullable=False)
 
     user = db.relationship("User", backref=db.backref("settings", uselist=False))
 
@@ -58,3 +82,20 @@ def load_user(user_id: str) -> Optional[User]:
         return db.session.get(User, int(user_id))
     except Exception:
         return None
+
+
+def ensure_user_settings_columns(engine) -> None:
+    """Ensure new columns exist (simple SQLite-friendly migration)."""
+    try:
+        with engine.begin() as conn:
+            res = conn.execute(db.text("PRAGMA table_info(user_settings)"))
+            cols = {row[1] for row in res}
+            if "platform_username" not in cols:
+                conn.execute(db.text("ALTER TABLE user_settings ADD COLUMN platform_username VARCHAR(120)"))
+            if "platform_password" not in cols:
+                conn.execute(db.text("ALTER TABLE user_settings ADD COLUMN platform_password VARCHAR(255)"))
+            if "headless" not in cols:
+                conn.execute(db.text("ALTER TABLE user_settings ADD COLUMN headless BOOLEAN NOT NULL DEFAULT 1"))
+    except Exception:
+        # Best-effort; ignore if not supported
+        pass

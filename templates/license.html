@@ -4,22 +4,22 @@
   <div class="col-md-6">
     <div class="card shadow-sm mb-3">
       <div class="card-body">
-        <h5 class="card-title">Status da Licença</h5>
-        <p class="mb-1"><b>Serial:</b> {{ user.serial_key or 'Não definido' }}</p>
+        <h5 class="card-title">Status da Licenca</h5>
+        <p class="mb-1"><b>Serial:</b> {{ user.serial_key or 'Nao definido' }}</p>
         {% if user.license_valid() %}
-          <p class="text-success mb-0"><b>Válida</b> — faltam {{ user.license_days_left() }} dia(s)</p>
+          <p class="text-success mb-0"><b>Valida</b> - faltam {{ user.license_days_left() }} dia(s)</p>
         {% else %}
-          <p class="text-danger mb-0"><b>Inválida/Expirada</b></p>
+          <p class="text-danger mb-0"><b>Invalida/Expirada</b></p>
         {% endif %}
       </div>
     </div>
     <div class="card shadow-sm">
       <div class="card-body">
-        <h5 class="card-title">Ativar Licença (30 dias)</h5>
+        <h5 class="card-title">Ativar Licenca</h5>
         <form method="post" action="{{ url_for('license.activate') }}">
           <div class="mb-3">
             <label class="form-label">Serial</label>
-            <input name="serial" class="form-control" placeholder="XXXX-XXXX-XXXX" required />
+            <input name="serial" class="form-control" placeholder="username|YYYYMMDD|assinatura" required />
           </div>
           <button class="btn btn-primary">Ativar</button>
         </form>

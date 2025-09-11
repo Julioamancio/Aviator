@@ -40,8 +40,9 @@ class BotState:
 
 
 class BotService:
-    def __init__(self, cfg: ConfigManager) -> None:
+    def __init__(self, cfg: ConfigManager, user_id: int) -> None:
         self.cfg = cfg
+        self.user_id = user_id
         self.state = BotState()
         self._thread: Optional[threading.Thread] = None
         self._stop = threading.Event()
@@ -53,7 +54,13 @@ class BotService:
         self._stop.clear()
         self.state.running = True
         self.state.started_at = time.time()
-        self._thread = threading.Thread(target=self._run_loop, name="BotThread", daemon=True)
+        # Choose loop by engine
+        try:
+            engine = self.cfg.load().get("bot", {}).get("engine", "selenium")
+        except Exception:
+            engine = "selenium"
+        target = self._run_loop_selenium if engine == "selenium" else self._run_loop
+        self._thread = threading.Thread(target=target, name="BotThread", daemon=True)
         self._thread.start()
         self._emit("Bot iniciado.")
         return True
@@ -87,6 +94,22 @@ class BotService:
     def _emit(self, msg: str) -> None:
         log.info(msg)
         self.state.logs.append(f"[{time.strftime('%H:%M:%S')}] {msg}")
+
+    def _run_loop_selenium(self) -> None:
+        data = self.cfg.load()
+        bot_cfg = data.get("bot", {})
+        interval = float(bot_cfg.get("interval_seconds", 2))
+        try:
+            from .selenium_bot import run_selenium_bot
+
+            def set_result(res: Dict[str, Any]) -> None:
+                self.state.last_result = res or {}
+
+            run_selenium_bot(self.cfg, self.user_id, self._stop, self._emit, set_result)
+        except Exception as e:
+            self._emit(f"Selenium loop error: {e}")
+        finally:
+            self._emit("Loop finalizado.")
 
     def _run_loop(self) -> None:
         data = self.cfg.load()
@@ -145,7 +168,6 @@ class BotManager:
         with self._lock:
             svc = self._services.get(user_id)
             if not svc:
-                svc = BotService(self.cfg)
+                svc = BotService(self.cfg, user_id)
                 self._services[user_id] = svc
             return svc
-

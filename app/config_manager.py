@@ -9,6 +9,13 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "host": "127.0.0.1",
         "port": 8000
     },
+    "platform": {
+        "login_url": "https://estrelabet.com/ptb/bet/main",
+        "game_url": "https://estrelabet.com/ptb/games/detail/casino/normal/7787",
+        "cookie_button_xpath": "//*[@id='cookies-bottom-modal']/div/div[1]/a",
+        "iframe_id": "gm-frm",
+        "results_selector": ".result-history"
+    },
     "strategy": {
         "name": "threshold",
         "threshold": 1.5,
@@ -20,7 +27,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "note": "Ajuste conforme necessário"
     },
     "bot": {
-        "script_path": "app/user_script.py",
+        "engine": "selenium",
         "interval_seconds": 2
     }
 }
