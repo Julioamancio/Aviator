@@ -29,6 +29,7 @@ from models import (
     LoginCredentials
 )
 from websocket_manager import ConnectionManager
+from config_loader import config_loader
 
 # Configuração de logging
 logging.basicConfig(
@@ -102,7 +103,7 @@ class CredentialsRequest(BaseModel):
 
 class BettingRequest(BaseModel):
     amount: float = Field(..., gt=0)
-    strategy: str = Field(..., regex="^(conservative|moderate|aggressive|custom)$")
+    strategy: str = Field(..., pattern="^(conservative|moderate|aggressive|custom)$")
     auto_cashout: Optional[float] = None
     max_loss: Optional[float] = None
     max_win: Optional[float] = None
@@ -125,62 +126,96 @@ async def health_check():
 
 # Endpoints de configuração
 
-@app.get("/config", response_model=BotConfig)
+@app.get("/config")
 async def get_config():
     """Obter configuração atual do bot"""
-    if not bot_controller:
-        raise HTTPException(status_code=500, detail="Bot controller not initialized")
-    return bot_controller.get_config()
+    try:
+        # Carregar configuração da pasta AVIATOR
+        config = config_loader.get_bot_config()
+        
+        # Adicionar informações sobre credenciais
+        config["credentials_configured"] = config_loader.is_configured()
+        
+        return {"success": True, "config": config}
+    except Exception as e:
+        logger.error(f"Erro ao obter configuração: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/config")
 async def update_config(config: ConfigUpdateRequest):
     """Atualizar configuração do bot"""
-    if not bot_controller:
-        raise HTTPException(status_code=500, detail="Bot controller not initialized")
-    
     try:
-        updated_config = bot_controller.update_config(config.dict(exclude_unset=True))
-        await manager.broadcast({"type": "config_updated", "data": updated_config.dict()})
-        return {"message": "Configuração atualizada com sucesso", "config": updated_config}
+        config_update = config.dict(exclude_unset=True)
+        # Atualizar configuração na pasta AVIATOR
+        success = config_loader.update_config('bot_settings', config_update)
+        
+        if success:
+            logger.info("Configuração atualizada com sucesso na pasta AVIATOR")
+            await manager.broadcast({"type": "config_updated", "data": config_update})
+            return {"success": True, "message": "Configuração atualizada", "config": config_update}
+        else:
+            raise HTTPException(status_code=500, detail="Erro ao salvar configuração")
+            
     except Exception as e:
         logger.error(f"Erro ao atualizar configuração: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/elements", response_model=ElementConfig)
+@app.get("/elements")
 async def get_elements():
     """Obter configuração de elementos"""
-    if not bot_controller:
-        raise HTTPException(status_code=500, detail="Bot controller not initialized")
-    return bot_controller.get_elements()
+    try:
+        # Carregar elementos da pasta AVIATOR
+        elements = config_loader.get_element_config()
+        
+        return {"success": True, "elements": elements}
+    except Exception as e:
+        logger.error(f"Erro ao obter elementos: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/elements")
 async def update_elements(elements: ElementUpdateRequest):
     """Atualizar configuração de elementos"""
-    if not bot_controller:
-        raise HTTPException(status_code=500, detail="Bot controller not initialized")
-    
     try:
-        updated_elements = bot_controller.update_elements(elements.dict(exclude_unset=True))
-        await manager.broadcast({"type": "elements_updated", "data": updated_elements.dict()})
-        return {"message": "Elementos atualizados com sucesso", "elements": updated_elements}
+        elements_update = elements.dict(exclude_unset=True)
+        # Atualizar elementos na pasta AVIATOR
+        success = config_loader.update_config('elements', elements_update)
+        
+        if success:
+            logger.info("Elementos atualizados com sucesso na pasta AVIATOR")
+            await manager.broadcast({"type": "elements_updated", "data": elements_update})
+            return {"success": True, "message": "Elementos atualizados", "elements": elements_update}
+        else:
+            raise HTTPException(status_code=500, detail="Erro ao salvar elementos")
+            
     except Exception as e:
         logger.error(f"Erro ao atualizar elementos: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Endpoints de credenciais
 
 @app.post("/credentials")
 async def set_credentials(credentials: CredentialsRequest):
     """Definir credenciais de login"""
-    if not bot_controller:
-        raise HTTPException(status_code=500, detail="Bot controller not initialized")
-    
     try:
-        bot_controller.set_credentials(credentials.username, credentials.password)
-        return {"message": "Credenciais definidas com sucesso"}
+        # Carregar configuração atual
+        current_config = config_loader.load_credentials() or {}
+        
+        # Atualizar credenciais
+        current_config['username'] = credentials.username
+        current_config['password'] = credentials.password
+        
+        # Salvar na pasta AVIATOR
+        success = config_loader.save_credentials(current_config)
+        
+        if success:
+            logger.info("Credenciais salvas com sucesso na pasta AVIATOR")
+            return {"success": True, "message": "Credenciais salvas com sucesso"}
+        else:
+            raise HTTPException(status_code=500, detail="Erro ao salvar credenciais")
+            
     except Exception as e:
         logger.error(f"Erro ao definir credenciais: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Endpoints de controle do bot
 

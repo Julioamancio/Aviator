@@ -142,6 +142,26 @@ A interface estará disponível em: `http://localhost:3000`
 4. Teste e valide os elementos
 
 ### 3. Definir Credenciais
+
+#### **Opção A: Configuração Automática (Recomendado)**
+```bash
+# Configurar credenciais interativamente
+python configure_credentials.py
+```
+
+#### **Opção B: Pen Drive Seguro (E:\AVIATOR)**
+```bash
+# 1. Configurar credenciais localmente
+python configure_credentials.py
+
+# 2. Copiar para pen drive
+python copy_to_pendrive.py
+
+# 3. Verificar pen drive
+python copy_to_pendrive.py --verify
+```
+
+#### **Opção C: Interface Web**
 1. Na página **Configuração**, clique em "Credenciais"
 2. Insira seu usuário e senha
 3. As credenciais são armazenadas de forma segura

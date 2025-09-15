@@ -38,6 +38,11 @@ bot_config.json
 .env.test.local
 .env.production.local
 
+# Pasta AVIATOR com credenciais seguras
+AVIATOR/
+AVIATOR/*
+AVIATOR/**/*
+
 # Logs
 *.log
 logs/
