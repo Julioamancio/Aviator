@@ -1,0 +1,23 @@
+# Dependências do Bot Aviator
+# Instale com: pip install -r requirements.txt
+
+selenium>=4.15.0
+webdriver-manager>=4.0.1
+requests>=2.31.0
+beautifulsoup4>=4.12.2
+numpy>=1.24.0
+pandas>=2.0.0
+colorama>=0.4.6
+tqdm>=4.66.0
+
+# Dependências opcionais para análise avançada
+scipy>=1.11.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Para notificações (opcional)
+plyer>=2.1.0
+
+# Para configurações avançadas (opcional)
+pyyaml>=6.0.1
+toml>=0.10.2

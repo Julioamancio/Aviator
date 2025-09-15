@@ -1,0 +1,265 @@
+# Dependências
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Ambientes virtuais
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Arquivos de configuração sensíveis
+credentials.json
+bot_config.json
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+logs/
+backend.log
+aviator_bot.log
+
+# Cache
+.cache/
+.npm
+.eslintcache
+.parcel-cache
+
+# Build do React
+frontend/build/
+frontend/dist/
+
+# IDE e Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Sistema Operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Selenium e Automação
+*.png
+*.jpg
+*.jpeg
+*.gif
+screenshots/
+chromedriver*
+geckodriver*
+*.crx
+
+# Backup e Temporários
+*.bak
+*.backup
+*.tmp
+*.temp
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Arquivos específicos do projeto
+user_data/
+session_data/
+temp_files/
+downloads/
+uploads/
+
+# Configurações locais
+config/local.json
+config/development.json
+config/production.json
+
+# Dados sensíveis
+keys/
+secrets/
+certs/
+*.pem
+*.key
+*.crt
+
+# Arquivos de sessão do navegador
+profile/
+user-data-dir/
+
+# Arquivos de lock
+*.lock
+package-lock.json
+yarn.lock
+
+# Arquivos de debug
+debug.log
+error.log
+access.log
+
+# Arquivos de teste
+test_results/
+test_reports/
+*.test
+
+# Arquivos de profiling
+*.prof
+*.pstats
+
+# Arquivos de monitoramento
+monitoring/
+metrics/
+
+# Arquivos de deployment
+deploy/
+.deploy/
+
+# Arquivos de configuração do servidor
+nginx.conf
+apache.conf
+
+# Arquivos de banco de dados
+*.db
+*.sqlite
+*.sqlite3
+
+# Arquivos de cache do Redis
+dump.rdb
+
+# Arquivos de configuração do Docker
+.dockerignore
+docker-compose.override.yml
+
+# Arquivos de configuração do Kubernetes
+*.yaml.local
+*.yml.local
+
+# Arquivos de configuração do Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Arquivos de configuração do Ansible
+*.retry
+
+# Arquivos de configuração do Vagrant
+.vagrant/
+
+# Arquivos de configuração do AWS
+.aws/
+
+# Arquivos de configuração do Google Cloud
+.gcloud/
+
+# Arquivos de configuração do Azure
+.azure/
